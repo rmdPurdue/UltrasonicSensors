@@ -92,6 +92,14 @@ public class main {
                             ));
 
                             // I don't think the calculations below are working. I'm getting a lot of NaN results.
+                            // Try this: x = (SUM(cos(theta))/number of angles); y = (SUM(sin(theta))/number of angles)
+                            // r = sqrt(x^2 + y^2); cos a = x/r; sin a = y/r; angle = arctan(sin a / cos a)
+                            // if sin > 0 && cos < 0: mean is 180 - angle
+                            // if sin < 0 && cos < 0: mean is 180 + angle
+                            // if sin < 0 && cos > 0: mean is 360 - angle
+                            //
+                            // r also = angular dispersion: 0 equals uniform dispersion; 1 = concentration in one direction
+                            // therefore, the closer to 1 the value, the lower the deviation.
 
                             // Calculate the average polar position (based on two-pair calculations) for each TOF grouping (assume edge-type)
                             tofGroup[7] = (getAverage(
@@ -144,7 +152,6 @@ public class main {
         while(deviationIteration.hasNext()) {
             int nextIndex = deviationIteration.nextIndex();
             double[] group = (double[]) deviationIteration.next();
-            if(group[5] )
             if(group[5] <= lastLengthDeviation) {
                 lastLengthDeviation = group[5];
                 smallestLengthDeviationIndex = nextIndex;
