@@ -1,5 +1,8 @@
+import javafx.util.Pair;
+
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.ListIterator;
 
 public class main {
 
@@ -10,7 +13,7 @@ public class main {
         UltrasonicReceiver r2 = new UltrasonicReceiver(25, -.1);
         UltrasonicReceiver r3 = new UltrasonicReceiver(25, 0);
         UltrasonicReceiver r4 = new UltrasonicReceiver(25, .1);
-        UltrasonicReceiver r5 = new UltrasonicReceiver(25, 1);
+        UltrasonicReceiver r5 = new UltrasonicReceiver(25, .2);
 
         // Clear all TOF return arraylists
         r1.clearTofReturns();
@@ -46,80 +49,121 @@ public class main {
         r5.calculateLengths();
 
         // Create an Arraylist of all possible 5-receiver TOF groupings
-        double[] tofGroup = new double[9];
         ArrayList<double[]> tofGroups = new ArrayList<>();
+        tofGroups.clear();
         Iterator iteratorR1 = r1.getLengths().iterator();
         int i = 0;
         while(iteratorR1.hasNext()) {
-            tofGroup[0] = (double)iteratorR1.next();
+            double one = (double)iteratorR1.next();
             Iterator iteratorR2 = r2.getLengths().iterator();
             while(iteratorR2.hasNext()) {
-                tofGroup[1] = (double)iteratorR2.next();
+                double two = (double)iteratorR2.next();
                 Iterator iteratorR3 = r3.getLengths().iterator();
                 while(iteratorR3.hasNext()) {
-                    tofGroup[2] = (double)iteratorR3.next();
+                    double three = (double)iteratorR3.next();
                     Iterator iteratorR4 = r4.getLengths().iterator();
                     while(iteratorR4.hasNext()) {
-                        tofGroup[3] = (double)iteratorR4.next();
+                        double four = (double)iteratorR4.next();
                         Iterator iteratorR5 = r5.getLengths().iterator();
                         while(iteratorR5.hasNext()) {
-                            i++;
+                            System.out.println(i + " ---------------------------------");
+                            double[] tofGroup = new double[10];
+                            tofGroup[0] = one;
+                            tofGroup[1] = two;
+                            tofGroup[2] = three;
+                            tofGroup[3] = four;
                             tofGroup[4] = (double)iteratorR5.next();
-                            //System.out.println(tofGroup[0] + " : " + tofGroup[1] + " : " + tofGroup[2] + " : " + tofGroup[3] + " : " + tofGroup[4]);
-                            tofGroup[5] = getAverage(
+
+                            // Calculate the average distance (based on two-pair calculations) for each TOF grouping (assume edge-type)
+                            tofGroup[5] = (getAverage(
                                     getLength(r1, r2, tofGroup[0], tofGroup[1]),
                                     getLength(r2, r3, tofGroup[1], tofGroup[2]),
                                     getLength(r3, r4, tofGroup[2], tofGroup[3]),
                                     getLength(r4, r5, tofGroup[3], tofGroup[4])
-                            );
-                            System.out.println("Avg group " + i + ": " + tofGroup[5]);
-                            tofGroup[6] = getStandardDeviation(
+                            ));
+
+                            // Calculate the standard deviation of distance for each TOF grouping (assume edge-type)
+                            tofGroup[6] = (getStandardDeviation(
                                     getLength(r1, r2, tofGroup[0], tofGroup[1]),
                                     getLength(r2, r3, tofGroup[1], tofGroup[2]),
                                     getLength(r3, r4, tofGroup[2], tofGroup[3]),
                                     getLength(r4, r5, tofGroup[3], tofGroup[4]),
                                     tofGroup[5]
-                            );
-                            System.out.println("Standard Deviation: " + tofGroup[6]);
-                            System.out.println();
+                            ));
+
+                            // I don't think the calculations below are working. I'm getting a lot of NaN results.
+
+                            // Calculate the average polar position (based on two-pair calculations) for each TOF grouping (assume edge-type)
+                            tofGroup[7] = (getAverage(
+                                    getAngle(r1, r2, tofGroup[0], tofGroup[1]),
+                                    getAngle(r2, r3, tofGroup[1], tofGroup[2]),
+                                    getAngle(r3, r4, tofGroup[2], tofGroup[3]),
+                                    getAngle(r4, r5, tofGroup[3], tofGroup[4])
+                            ));
+
+                            /*
+                            System.out.println("Angle 1: " + getAngle(r1, r2, tofGroup[0], tofGroup[1]) + " : " +
+                                    "Angle 2: " + getAngle(r2, r3, tofGroup[1], tofGroup[2]) + " : " +
+                                    "Angle 3: " + getAngle(r3, r4, tofGroup[2], tofGroup[3]) + " : " +
+                                    "Angle 4: " + getAngle(r4, r5, tofGroup[3], tofGroup[4]));
+
+                            // Calculate the standard deviation of angle for each TOF grouping (assume edge-type)
+                            tofGroup[8] = (getStandardDeviation(
+                                    getAngle(r1, r2, tofGroup[0], tofGroup[1]),
+                                    getAngle(r2, r3, tofGroup[1], tofGroup[2]),
+                                    getAngle(r3, r4, tofGroup[2], tofGroup[3]),
+                                    getAngle(r4, r5, tofGroup[3], tofGroup[4]),
+                                    tofGroup[7]
+                            ));
+
+                            System.out.println("Average Angle: " + tofGroup[7] + " Deviation: " + tofGroup[8]);
+*/
+                            // Calculate the average distance (based on two-pair calculations for each TOG grouping (assume face-type)
+
+                            // Calculate the standard deviation of distance for each TOF grouping (assume face-type)
+
+                            // Calculate the average polar position (based on two-pair calculations) for each TOF grouping (assume face-type)
+
+                            // Calculate the standard deviation of angle for each TOF grouping (assume face-type)
+
                             tofGroups.add(tofGroup);
+                            i++;
                         }
                     }
                 }
             }
         }
 
-        System.out.println(tofGroups.get(106)[5]);
-
-/*
-        Iterator iterator1 = tofGroups.iterator();
-        while(iterator1.hasNext()) {
-            double[] tofGroup1 = (double[])iterator1.next();
-            System.out.println(tofGroup1[0] + " : " + tofGroup1[1] + " : " + tofGroup1[2] + " : " +
-                    tofGroup1[3] + " : " + tofGroup1[4]);
-        }
-
-        // Calculate the average distance (based on two-pair calculations) for each TOF grouping (assume edge-type)
-        int i = 0;
-        Iterator iterator = tofGroups.iterator();
-        while(iterator.hasNext()) {
-            i++;
-            double[] group = (double[])iterator.next();
-            System.out.println(group[0] + " : " + group[1] + " : " + group[2] + " : " + group[3] + " : " + group[4]);
-            System.out.println("Avg group " + i + ": " + getAverage(
-                    getLength(r1, r2, group[0], group[1]),
-                    getLength(r2, r3, group[1], group[2]),
-                    getLength(r3, r4, group[2], group[3]),
-                    getLength(r4, r5, group[3], group[4])
-            ));
-        }
-*/
-
-        // Calculate the average polar position (based on two-pair calculations) for each TOF grouping (assume edge-type)
-
-        // Calculate the standard deviation for each TOF grouping (assume edge-type)
 
         // Determine the grouping with the smallest standard deviation (assume edge-type)
+        ListIterator deviationIteration = tofGroups.listIterator();
+        int smallestLengthDeviationIndex = 0;
+        int smallestAngleDeviationIndex = 0;
+        double lastLengthDeviation = 100;
+        double lastAngleDeviation = 100;
+        while(deviationIteration.hasNext()) {
+            int nextIndex = deviationIteration.nextIndex();
+            double[] group = (double[]) deviationIteration.next();
+            if(group[5] )
+            if(group[5] <= lastLengthDeviation) {
+                lastLengthDeviation = group[5];
+                smallestLengthDeviationIndex = nextIndex;
+            }
+            if(group[7] <= lastAngleDeviation) {
+                lastAngleDeviation = group[7];
+                smallestAngleDeviationIndex = nextIndex;
+            }
+        }
+
+
+        // Use this code to check against the white paper that we're getting the right group.
+        System.out.println("Smallest Length Deviation Index = " + smallestLengthDeviationIndex);
+        System.out.println("Smallest Angle Deviation Index = " + smallestAngleDeviationIndex);
+        System.out.println("TOF Group: " + tofGroups.get(smallestLengthDeviationIndex)[0] + " : " + tofGroups.get(smallestLengthDeviationIndex)[1]
+             + " : " + tofGroups.get(smallestLengthDeviationIndex)[2] + " : " + tofGroups.get(smallestLengthDeviationIndex)[3] + " : " +
+            tofGroups.get(smallestLengthDeviationIndex)[4]);
+        System.out.println("Average distance: " + tofGroups.get(smallestLengthDeviationIndex)[5]);
+        System.out.println("Average angle: " + Math.toDegrees(tofGroups.get(smallestAngleDeviationIndex)[7]));
 
         // Calculate the average distance (based on two-pair calculations for each TOG grouping (assume face-type)
 
@@ -231,4 +275,19 @@ public class main {
         return sigma;
     }
 
+    private static double getAngle(UltrasonicReceiver r1, UltrasonicReceiver r2, double l1, double l2) {
+        double angle = 0;
+        double d1 = r1.getDistance();
+        double d2 = r2.getDistance();
+        double d1squared = Math.pow(d1,2);
+        double d2squared = Math.pow(d2,2);
+        double l1squared = Math.pow(l1, 2);
+        double l2squared = Math.pow(l2, 2);
+        double numerator = (l2 * (l1squared - d1squared)) - (l1 * (l2squared - d2squared));
+        double denominator = (d2 * (l1squared - d1squared)) - (d1 * (l2squared - d2squared));
+        if(numerator / denominator > 1) { angle = -(Math.asin(1)); }
+        if (numerator / denominator < -1) { angle = -(Math.asin(-1)); }
+        if((numerator / denominator <= -1) && (numerator / denominator >= 1)) {angle = -(Math.asin(numerator / denominator)); }
+        return angle;
+    }
 }
