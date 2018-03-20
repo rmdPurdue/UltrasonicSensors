@@ -102,6 +102,33 @@ public class main {
                             // therefore, the closer to 1 the value, the lower the deviation.
 
                             // Calculate the average polar position (based on two-pair calculations) for each TOF grouping (assume edge-type)
+                            double angle1 = getAngle(r1, r2, tofGroup[0], tofGroup[1]);
+                            double angle2 = getAngle(r2, r3, tofGroup[1], tofGroup[2]);
+                            double angle3 = getAngle(r3, r4, tofGroup[2], tofGroup[3]);
+                            double angle4 = getAngle(r4, r5, tofGroup[3], tofGroup[4]);
+                            double x = (Math.cos(angle1) + Math.cos(angle2) + Math.cos(angle3) + Math.cos(angle4)) / 4;
+                            double y = (Math.sin(angle1) + Math.sin(angle2) + Math.sin(angle3) + Math.sin(angle4)) / 4;
+                            double r = Math.sqrt(Math.pow(x,2) + Math.pow(y,2));
+                            double sin = Math.sin(y / r);
+                            double cos = Math.cos(x / r);
+                            double angle = Math.atan(sin / cos);
+//                            if(sin > 0 && cos < 0) { tofGroup[7] = Math.toRadians(180) - Math.abs(angle); }
+//                            if(sin < 0 && cos < 0) { tofGroup[7] = Math.toRadians(180) + Math.abs(angle); }
+//                            if(sin < 0 && cos > 0) { tofGroup[7] = Math.toRadians(360) - Math.abs(angle); }
+                            if(sin > 0 && cos > 0) { tofGroup[7] = Math.abs(angle); }
+                            tofGroup[7] = angle;
+
+                            tofGroup[8] = r;
+
+                            System.out.println("Angle 1: " + Math.toDegrees(angle1) + " Angle 2: " + Math.toDegrees(angle2) +
+                                    " Angle 3: " + Math.toDegrees(angle3) + " Angle 4: " + Math.toDegrees(angle4) +
+                                    " Average: " + Math.toDegrees(tofGroup[7]));
+                            System.out.println("Angle 1: " + angle1 + " Angle 2: " + angle2 +
+                                    " Angle 3: " + angle3 + " Angle 4: " + angle4 +
+                                    " Average: " + tofGroup[7]);
+                            System.out.println("Standard Deviation: " + tofGroup[8]);
+
+                            /*
                             tofGroup[7] = (getAverage(
                                     getAngle(r1, r2, tofGroup[0], tofGroup[1]),
                                     getAngle(r2, r3, tofGroup[1], tofGroup[2]),
@@ -109,7 +136,6 @@ public class main {
                                     getAngle(r4, r5, tofGroup[3], tofGroup[4])
                             ));
 
-                            /*
                             System.out.println("Angle 1: " + getAngle(r1, r2, tofGroup[0], tofGroup[1]) + " : " +
                                     "Angle 2: " + getAngle(r2, r3, tofGroup[1], tofGroup[2]) + " : " +
                                     "Angle 3: " + getAngle(r3, r4, tofGroup[2], tofGroup[3]) + " : " +
@@ -156,7 +182,7 @@ public class main {
                 lastLengthDeviation = group[5];
                 smallestLengthDeviationIndex = nextIndex;
             }
-            if(group[7] <= lastAngleDeviation) {
+            if(group[7] >= lastAngleDeviation) {
                 lastAngleDeviation = group[7];
                 smallestAngleDeviationIndex = nextIndex;
             }
@@ -292,9 +318,7 @@ public class main {
         double l2squared = Math.pow(l2, 2);
         double numerator = (l2 * (l1squared - d1squared)) - (l1 * (l2squared - d2squared));
         double denominator = (d2 * (l1squared - d1squared)) - (d1 * (l2squared - d2squared));
-        if(numerator / denominator > 1) { angle = -(Math.asin(1)); }
-        if (numerator / denominator < -1) { angle = -(Math.asin(-1)); }
-        if((numerator / denominator <= -1) && (numerator / denominator >= 1)) {angle = -(Math.asin(numerator / denominator)); }
+        angle = -(Math.asin(numerator / denominator));
         return angle;
     }
 }
