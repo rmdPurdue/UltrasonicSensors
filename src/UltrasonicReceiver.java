@@ -70,6 +70,10 @@ public class UltrasonicReceiver {
         this.tofReturns = tofReturns;
     }
 
+    public int getNumberofReturns() {
+        return tofReturns.size();
+    }
+
     public void setTofReturn(double time) {
         tofReturns.add(time);
     }
