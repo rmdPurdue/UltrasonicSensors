@@ -1,6 +1,5 @@
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.ListIterator;
 
 public class model {
 
@@ -13,12 +12,20 @@ public class model {
         UltrasonicReceiver r4 = new UltrasonicReceiver(25, .1);
         UltrasonicReceiver r5 = new UltrasonicReceiver(25, .2);
 
+        // Create an arraylist of ultrasonic receivers
+        ArrayList<UltrasonicReceiver> receivers = new ArrayList<>();
+        receivers.add(r1);
+        receivers.add(r2);
+        receivers.add(r3);
+        receivers.add(r4);
+        receivers.add(r5);
+
         // Clear all TOF return arraylists
-        r1.clearTofReturns();
-        r2.clearTofReturns();
-        r3.clearTofReturns();
-        r4.clearTofReturns();
-        r5.clearTofReturns();
+        Iterator receiversIterator = receivers.iterator();
+        while(receiversIterator.hasNext()) {
+            UltrasonicReceiver receiver = (UltrasonicReceiver)receiversIterator.next();
+            receiver.clearTofReturns();
+        }
 
         // Set dummy TOF returns for all five receivers
         r1.setTofReturn(3210.1);
@@ -40,15 +47,65 @@ public class model {
         r5.setTofReturn(3087.7);
 
         // Calculate lengths to objects based on TOF returns
-        r1.calculateLengths();
-        r2.calculateLengths();
-        r3.calculateLengths();
-        r4.calculateLengths();
-        r5.calculateLengths();
+        receiversIterator = receivers.iterator();
+        while(receiversIterator.hasNext()) {
+            UltrasonicReceiver receiver = (UltrasonicReceiver)receiversIterator.next();
+            receiver.calculateLOFS();
+        }
 
+        // Create an ArrayList of distances from transmitter for each receiver
+        // Determine the number of objects
+        ArrayList<Double> distances = new ArrayList<>();
+        int maxReturns = 0;
+        for(UltrasonicReceiver receiver : receivers) {
+            distances.add(receiver.getDistance());
+            maxReturns = (receiver.getNumberofReturns() > maxReturns) ? receiver.getNumberofReturns() : maxReturns;
+        }
 
         // Create an Arraylist of all possible 5-receiver TOF groupings
-        ArrayList<double[]> lofGroups = getTOFGroups(r1, r2, r3, r4, r5);
+        ArrayList<LOFGroup> lofGroups = new ArrayList<>();
+        for(double r1LOF : r1.getLOFS()) {
+            for(double r2LOF : r2.getLOFS()) {
+                for(double r3LOF : r3.getLOFS()) {
+                    for(double r4LOF : r4.getLOFS()) {
+                        for(double r5LOF : r5.getLOFS()) {
+                            ArrayList<Double> lofs = new ArrayList<>();
+                            lofs.add(r1LOF);
+                            lofs.add(r2LOF);
+                            lofs.add(r3LOF);
+                            lofs.add(r4LOF);
+                            lofs.add(r5LOF);
+                            LOFGroup lofGroup = new LOFGroup(lofs, distances);
+                            lofGroup.calculateDeviation();
+                            lofGroups.add(lofGroup);
+                        }
+                    }
+                }
+            }
+        }
+
+        ArrayList<LOFGroup> objectResults = new ArrayList<>();
+        for(int h = 0; h < maxReturns; h++) {
+            LOFGroup group = new LOFGroup();
+            for (int i = 0; i < lofGroups.size(); i++) {
+                for (int j = i + 1; j < lofGroups.size(); j++) {
+                    group = lofGroups.get(i).getDeviation() < lofGroups.get(j).getDeviation() ?
+                            lofGroups.get(i) : lofGroups.get(j);
+                }
+            }
+            objectResults.add(group);
+        }
+
+        for(LOFGroup group : objectResults) {
+            System.out.println("Index: " + objectResults.indexOf(group));
+            System.out.println("Length: " + group.getLength());
+            System.out.println("Bearing: " + group.getAngle());
+            System.out.println();
+        }
+
+
+
+//        ArrayList<double[]> lofGroups = getTOFGroups(r1, r2, r3, r4, r5);
 /*
 //        ArrayList<double[]> tofGroups = new ArrayList<>();
 //        tofGroups.clear();
@@ -282,7 +339,7 @@ public class model {
         }
 */
     }
-
+/*
     private static ArrayList<double[]> getTOFGroups(UltrasonicReceiver r1, UltrasonicReceiver r2, UltrasonicReceiver r3,
                                                   UltrasonicReceiver r4, UltrasonicReceiver r5) {
         ArrayList<double[]> tofGroups = new ArrayList<>();
@@ -314,7 +371,7 @@ public class model {
         }
         return tofGroups;
     }
-
+*/
     private static double getLength(UltrasonicReceiver r1, UltrasonicReceiver r2, double l1, double l2) {
         double length;
         double d1 = r1.getDistance();

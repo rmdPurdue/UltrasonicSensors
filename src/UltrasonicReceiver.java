@@ -43,11 +43,11 @@ public class UltrasonicReceiver {
         this.distance = distance;
     }
 
-    public ArrayList<Double> getLengths() {
+    public ArrayList<Double> getLOFS() {
         return lengths;
     }
 
-    public void calculateLengths() {
+    public void calculateLOFS() {
         if(!tofReturns.isEmpty()) {
             lengths.clear();
             Iterator itr = this.tofReturns.iterator();
